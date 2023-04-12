@@ -16,9 +16,9 @@ import com.example.mymusicwiki.adapter.HomeTagsAdapter
 import com.example.mymusicwiki.model.HomeTag
 import org.json.JSONException
 
-const val TAG="MainTag"
-class MainActivity : AppCompatActivity() {
 
+class MainActivity : AppCompatActivity() {
+    val TAG="MainTag"
     lateinit var tagList: ArrayList<HomeTag>
     lateinit var tagsRecyclerView: RecyclerView
     lateinit var expand_button:Button
@@ -82,8 +82,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onListItemClick(position: Int) {
-//        Toast.makeText(this, tagList[position].name, Toast.LENGTH_SHORT).show()
         val intent = Intent(this, GenreDetailActivity::class.java)
+        intent.putExtra("tag_name",tagList[position].name)
         startActivity(intent)
     }
 }
