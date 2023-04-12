@@ -12,4 +12,5 @@
     <color name="primary">#FF0000</color>
     <color name="primary_variant">#F5EDCE</color>
     <color name="secondary">#282A3A</color>
+    <color name="transparent">#00000000</color>
 </resources>
