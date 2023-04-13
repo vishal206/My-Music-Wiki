@@ -1,5 +1,6 @@
 package com.example.mymusicwiki
 
+import android.app.ProgressDialog
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
@@ -18,22 +19,22 @@ import org.json.JSONException
 
 class GenreDetailActivity : AppCompatActivity() {
 
-    val TAG="GenreDetTag"
-    lateinit var tag_name:String
-    lateinit var tag_name_tv:TextView
-    lateinit var tag_description:TextView
+    val TAG = "GenreDetTag"
+    lateinit var tag_name: String
+    lateinit var tag_name_tv: TextView
+    lateinit var tag_description: TextView
     lateinit var tabLayout: TabLayout
     lateinit var viewPager2: ViewPager
-
+    lateinit var progressDialog: ProgressDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_genre_detail)
 
         initializeViews()
-        val intent=intent
+        val intent = intent
         tag_name = intent.getStringExtra("tag_name").toString()
-        tag_name_tv.text=tag_name
+        tag_name_tv.text = tag_name
 
         fetchTagInfo()
 
@@ -41,7 +42,8 @@ class GenreDetailActivity : AppCompatActivity() {
         tabLayout.addTab(tabLayout.newTab().setText("artists"))
         tabLayout.addTab(tabLayout.newTab().setText("tracks"))
 
-        val adapter=GenreDetailFragmentAdapter(this, supportFragmentManager,tabLayout.tabCount,tag_name)
+        val adapter =
+            GenreDetailFragmentAdapter(this, supportFragmentManager, tabLayout.tabCount, tag_name)
         viewPager2.adapter = adapter
 
         tabLayout.setupWithViewPager(viewPager2);
@@ -49,6 +51,7 @@ class GenreDetailActivity : AppCompatActivity() {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 viewPager2.currentItem = tab.position
             }
+
             override fun onTabUnselected(tab: TabLayout.Tab) {}
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
@@ -57,26 +60,37 @@ class GenreDetailActivity : AppCompatActivity() {
 
     private fun initializeViews() {
         tag_name_tv = findViewById(R.id.tag_name)
-        tag_description=findViewById(R.id.tag_description)
+        tag_description = findViewById(R.id.tag_description)
         tabLayout = findViewById(R.id.tab_layout)
         viewPager2 = findViewById(R.id.view_pager2)
+
+        progressDialog = ProgressDialog(this, R.style.CustomProgressDialog)
+        progressDialog.setCancelable(false)
+        progressDialog.show()
     }
 
     private fun fetchTagInfo() {
-        val apiUrl= "https://ws.audioscrobbler.com/2.0/?method=tag.getinfo&tag="+tag_name+"&api_key=f1bb284143153afdd97fe783fc354ef1&format=json"
+        val apiUrl =
+            "https://ws.audioscrobbler.com/2.0/?method=tag.getinfo&tag=" + tag_name + "&api_key=f1bb284143153afdd97fe783fc354ef1&format=json"
         Log.d(TAG, "fetchTags: here")
         val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(
             Method.GET, apiUrl, null,
             Response.Listener { response ->
-                Log.d(TAG, "fetchTags: "+response)
+                Log.d(TAG, "fetchTags: " + response)
                 try {
-                    tag_description.text=response.getJSONObject("tag").getJSONObject("wiki").getString("summary")
+                    tag_description.text =
+                        response.getJSONObject("tag").getJSONObject("wiki").getString("summary")
+                    progressDialog.dismiss()
                 } catch (e: JSONException) {
-                    Log.d(TAG, "fetchTagJsErs: "+e)
+                    Log.d(TAG, "fetchTagJsErs: " + e)
                     e.printStackTrace()
+                    progressDialog.dismiss()
                 }
             },
-            Response.ErrorListener { error -> Log.d(TAG, "fetchTagsEr: "+error) }) {
+            Response.ErrorListener { error ->
+                Log.d(TAG, "fetchTagsEr: " + error)
+                progressDialog.dismiss()
+            }) {
         }
         val requestQueue = Volley.newRequestQueue(this)
         requestQueue.add(jsonObjectRequest)

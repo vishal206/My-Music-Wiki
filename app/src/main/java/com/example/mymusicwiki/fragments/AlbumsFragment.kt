@@ -1,5 +1,6 @@
 package com.example.mymusicwiki.fragments
 
+import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.example.mymusicwiki.AlbumDetailActivity
 import com.example.mymusicwiki.GenreDetailActivity
 import com.example.mymusicwiki.R
 import com.example.mymusicwiki.adapter.AlbumsAdapter
@@ -21,11 +23,13 @@ import com.example.mymusicwiki.model.HomeTag
 import org.json.JSONException
 
 
-class AlbumsFragment(val tag_name:String) : Fragment() {
+class AlbumsFragment(val tag_name: String) : Fragment() {
 
-    lateinit var album_recycler_view:RecyclerView
-    val TAG="AlbumFrag"
-    lateinit var albumList:ArrayList<Album>
+    lateinit var album_recycler_view: RecyclerView
+    val TAG = "AlbumFrag"
+    lateinit var albumList: ArrayList<Album>
+    lateinit var progressDialog: ProgressDialog
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -33,51 +37,65 @@ class AlbumsFragment(val tag_name:String) : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_albums, container, false)
 
-        album_recycler_view=view.findViewById(R.id.album_recycler_view);
-        albumList=ArrayList()
+        progressDialog = ProgressDialog(context, R.style.CustomProgressDialog)
+        progressDialog.setCancelable(false)
+        progressDialog.show()
+
+        album_recycler_view = view.findViewById(R.id.album_recycler_view);
+        albumList = ArrayList()
 
         fetchAlbums()
         return view
     }
 
     private fun fetchAlbums() {
-        val apiUrl= "https://ws.audioscrobbler.com/2.0/?method=tag.gettopalbums&tag="+tag_name+"&api_key=f1bb284143153afdd97fe783fc354ef1&format=json"
+        val apiUrl =
+            "https://ws.audioscrobbler.com/2.0/?method=tag.gettopalbums&tag=" + tag_name + "&api_key=f1bb284143153afdd97fe783fc354ef1&format=json"
         Log.d(TAG, "fetchAlbums: here")
         val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(
             Method.GET, apiUrl, null,
             Response.Listener { response ->
-                Log.d(TAG, "fetchTags: "+response)
+                Log.d(TAG, "fetchTags: " + response)
                 try {
-                    val albumArray=response.getJSONObject("albums").getJSONArray("album");
-                    for (i in 0 until albumArray.length()){
+                    val albumArray = response.getJSONObject("albums").getJSONArray("album");
+                    for (i in 0 until albumArray.length()) {
                         val album = albumArray.getJSONObject(i)
-                        val tempAlbum = Album(album.getString("name"),
-                        album.getJSONArray("image").getJSONObject(3).getString("#text"),
-                        album.getJSONObject("artist").getString("name"))
+                        val tempAlbum = Album(
+                            album.getString("name"),
+                            album.getJSONArray("image").getJSONObject(3).getString("#text"),
+                            album.getJSONObject("artist").getString("name")
+                        )
                         albumList.add(tempAlbum)
                     }
                     setRecyclerView()
+                    progressDialog.dismiss()
                 } catch (e: JSONException) {
-                    Log.d(TAG, "fetchAlbumsJsErs: "+e)
+                    Log.d(TAG, "fetchAlbumsJsErs: " + e)
                     e.printStackTrace()
+                    progressDialog.dismiss()
                 }
             },
-            Response.ErrorListener { error -> Log.d(TAG, "fetchAlbumsEr: "+error) }) {
+            Response.ErrorListener { error ->
+                Log.d(TAG, "fetchAlbumsEr: " + error)
+                progressDialog.dismiss()
+            }) {
         }
         val requestQueue = Volley.newRequestQueue(context)
         requestQueue.add(jsonObjectRequest)
     }
 
     private fun setRecyclerView() {
-        album_recycler_view.layoutManager=GridLayoutManager(context,2)
-        val adapter=AlbumsAdapter(albumList){position -> onListItemClick(position)}
-        album_recycler_view.adapter=adapter
+        album_recycler_view.layoutManager = GridLayoutManager(context, 2)
+        val adapter =
+            AlbumsAdapter(requireContext(), albumList) { position -> onListItemClick(position) }
+        album_recycler_view.adapter = adapter
     }
 
     private fun onListItemClick(position: Int) {
-        Toast.makeText(context, albumList[position].name, Toast.LENGTH_SHORT).show()
-//        val intent = Intent(this, GenreDetailActivity::class.java)
-//        intent.putExtra("tag_name",tagList[position].name)
-//        startActivity(intent)
+//        Toast.makeText(context, albumList[position].name, Toast.LENGTH_SHORT).show()
+        val intent = Intent(context, AlbumDetailActivity::class.java)
+        intent.putExtra("album_name", albumList[position].name)
+        intent.putExtra("album_artist", albumList[position].artist)
+        startActivity(intent)
     }
 }
