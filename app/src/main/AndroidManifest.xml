@@ -15,6 +15,13 @@
         android:theme="@style/Theme.MyMusicWiki"
         tools:targetApi="31">
         <activity
+            android:name=".ArtistDetailActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".AlbumDetailActivity"
             android:exported="false">
             <meta-data

@@ -15,7 +15,7 @@ internal class GenreDetailFragmentAdapter(
     var context: Context,
     fm: FragmentManager,
     var totalTabs: Int,
-    var tag_name:String
+    var tag_name: String
 ) :
     FragmentPagerAdapter(fm) {
     override fun getItem(position: Int): Fragment {
@@ -24,17 +24,19 @@ internal class GenreDetailFragmentAdapter(
                 AlbumsFragment(tag_name)
             }
             1 -> {
-                ArtistsFragment()
+                ArtistsFragment(tag_name)
             }
             2 -> {
-                TracksFragment()
+                TracksFragment(tag_name)
             }
             else -> getItem(position)
         }
     }
+
     override fun getCount(): Int {
         return totalTabs
     }
+
     override fun getPageTitle(position: Int): CharSequence? {
         //this is where you set the titles
         when (position) {

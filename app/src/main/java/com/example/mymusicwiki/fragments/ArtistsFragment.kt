@@ -1,60 +1,99 @@
 package com.example.mymusicwiki.fragments
 
+import android.app.ProgressDialog
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.Response
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
+import com.example.mymusicwiki.AlbumDetailActivity
+import com.example.mymusicwiki.ArtistDetailActivity
 import com.example.mymusicwiki.R
+import com.example.mymusicwiki.adapter.AlbumsAdapter
+import com.example.mymusicwiki.model.Album
+import org.json.JSONException
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [ArtistsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class ArtistsFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+class ArtistsFragment(val tag_name: String) : Fragment() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    lateinit var album_recycler_view: RecyclerView
+    val TAG = "ArtistFrag"
+    lateinit var albumList: ArrayList<Album>
+    lateinit var progressDialog: ProgressDialog
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_artists, container, false)
+        val view = inflater.inflate(R.layout.fragment_artists, container, false)
+
+        progressDialog = ProgressDialog(context, R.style.CustomProgressDialog)
+        progressDialog.setCancelable(false)
+        progressDialog.show()
+
+        album_recycler_view = view.findViewById(R.id.album_recycler_view);
+        albumList = ArrayList()
+
+        fetchAlbums()
+        return view
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ArtistsFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ArtistsFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    private fun fetchAlbums() {
+        val apiUrl =
+            "https://ws.audioscrobbler.com/2.0/?method=tag.gettopartists&tag=" + tag_name + "&api_key=f1bb284143153afdd97fe783fc354ef1&format=json"
+        Log.d(TAG, "fetchAlbums: here")
+        val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(
+            Method.GET, apiUrl, null,
+            Response.Listener { response ->
+                Log.d(TAG, "fetchTags: " + response)
+                try {
+                    val artistArray = response.getJSONObject("topartists").getJSONArray("artist");
+                    for (i in 0 until artistArray.length()) {
+                        val album = artistArray.getJSONObject(i)
+                        val tempAlbum = Album(
+                            album.getString("name"),
+                            album.getJSONArray("image").getJSONObject(3).getString("#text"),
+                            ""
+                        )
+                        albumList.add(tempAlbum)
+                    }
+                    setRecyclerView()
+                    progressDialog.dismiss()
+                } catch (e: JSONException) {
+                    Log.d(TAG, "fetchAlbumsJsErs: " + e)
+                    e.printStackTrace()
+                    progressDialog.dismiss()
                 }
-            }
+            },
+            Response.ErrorListener { error ->
+                Log.d(TAG, "fetchAlbumsEr: " + error)
+                progressDialog.dismiss()
+            }) {
+        }
+        val requestQueue = Volley.newRequestQueue(context)
+        requestQueue.add(jsonObjectRequest)
     }
+
+    private fun setRecyclerView() {
+        album_recycler_view.layoutManager = GridLayoutManager(context, 2)
+        val adapter =
+            AlbumsAdapter(requireContext(), albumList) { position -> onListItemClick(position) }
+        album_recycler_view.adapter = adapter
+    }
+
+    private fun onListItemClick(position: Int) {
+//        Toast.makeText(context, albumList[position].name, Toast.LENGTH_SHORT).show()
+        val intent = Intent(context, ArtistDetailActivity::class.java)
+        intent.putExtra("artist_name", albumList[position].name)
+        startActivity(intent)
+    }
+
 }

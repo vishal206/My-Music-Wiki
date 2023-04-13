@@ -32,7 +32,11 @@ class AlbumsAdapter(
         val album = albumList[position]
         // sets the text to the textview from our itemHolder class
         holder.album_name.text = album.name
-        holder.album_artist.text = album.artist
+        if (album.artist.equals("")) {
+            holder.album_artist.visibility = View.GONE
+        } else {
+            holder.album_artist.text = album.artist
+        }
         Glide.with(context).load(album.imageUrl).into(holder.album_image)
     }
 
