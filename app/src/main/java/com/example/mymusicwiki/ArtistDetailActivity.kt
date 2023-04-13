@@ -35,6 +35,7 @@ class ArtistDetailActivity : AppCompatActivity() {
     lateinit var tagsRecyclerView: RecyclerView
     lateinit var albums_recycler_view: RecyclerView
     lateinit var tracks_recycler_view: RecyclerView
+    lateinit var music_wiki_logo:ImageView
 
     lateinit var tagList: ArrayList<HomeTag>
     lateinit var albumList: ArrayList<Album>
@@ -54,6 +55,11 @@ class ArtistDetailActivity : AppCompatActivity() {
         fetchDetail()
         fetchAlbums()
         fetchTracks()
+
+        music_wiki_logo.setOnClickListener{
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun fetchTracks() {
@@ -236,7 +242,8 @@ class ArtistDetailActivity : AppCompatActivity() {
         artist_image = findViewById(R.id.artist_image)
         tagsRecyclerView = findViewById(R.id.tagsRecyclerView)
         albums_recycler_view = findViewById(R.id.albums_recycler_view)
-        tracks_recycler_view = findViewById(R.id.tracks_recycler_view);
+        tracks_recycler_view = findViewById(R.id.tracks_recycler_view)
+        music_wiki_logo=findViewById(R.id.music_wiki_logo)
 
         tagList = ArrayList()
         progressDialog = ProgressDialog(this, R.style.CustomProgressDialog)

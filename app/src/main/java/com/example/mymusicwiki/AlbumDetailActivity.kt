@@ -32,6 +32,7 @@ class AlbumDetailActivity : AppCompatActivity() {
     lateinit var album_image: ImageView
     lateinit var tagList: ArrayList<HomeTag>
     lateinit var progressDialog: ProgressDialog
+    lateinit var music_wiki_logo:ImageView
     val TAG = "AlbumDet"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,6 +49,11 @@ class AlbumDetailActivity : AppCompatActivity() {
         album_artist_tv.text = album_artist
 
         fetchAlbumInfo()
+
+        music_wiki_logo.setOnClickListener{
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun fetchAlbumInfo() {
@@ -122,6 +128,7 @@ class AlbumDetailActivity : AppCompatActivity() {
         album_description = findViewById(R.id.album_description)
         tagsRecyclerView = findViewById(R.id.tagsRecyclerView)
         album_image = findViewById(R.id.album_image)
+        music_wiki_logo=findViewById(R.id.music_wiki_logo)
 
         tagList = ArrayList()
         progressDialog = ProgressDialog(this, R.style.CustomProgressDialog)

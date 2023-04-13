@@ -1,8 +1,10 @@
 package com.example.mymusicwiki
 
 import android.app.ProgressDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager.widget.ViewPager
@@ -26,6 +28,7 @@ class GenreDetailActivity : AppCompatActivity() {
     lateinit var tabLayout: TabLayout
     lateinit var viewPager2: ViewPager
     lateinit var progressDialog: ProgressDialog
+    lateinit var music_wiki_logo: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +59,10 @@ class GenreDetailActivity : AppCompatActivity() {
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
 
+        music_wiki_logo.setOnClickListener{
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun initializeViews() {
@@ -63,6 +70,7 @@ class GenreDetailActivity : AppCompatActivity() {
         tag_description = findViewById(R.id.tag_description)
         tabLayout = findViewById(R.id.tab_layout)
         viewPager2 = findViewById(R.id.view_pager2)
+        music_wiki_logo=findViewById(R.id.music_wiki_logo)
 
         progressDialog = ProgressDialog(this, R.style.CustomProgressDialog)
         progressDialog.setCancelable(false)
