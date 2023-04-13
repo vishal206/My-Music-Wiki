@@ -34,9 +34,11 @@ class ArtistDetailActivity : AppCompatActivity() {
     lateinit var progressDialog: ProgressDialog
     lateinit var tagsRecyclerView: RecyclerView
     lateinit var albums_recycler_view: RecyclerView
+    lateinit var tracks_recycler_view: RecyclerView
 
     lateinit var tagList: ArrayList<HomeTag>
     lateinit var albumList: ArrayList<Album>
+    lateinit var trackList: ArrayList<Album>
     val TAG = "artistDet"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +53,55 @@ class ArtistDetailActivity : AppCompatActivity() {
 
         fetchDetail()
         fetchAlbums()
+        fetchTracks()
+    }
+
+    private fun fetchTracks() {
+        val apiUrl =
+            "https://ws.audioscrobbler.com/2.0/?method=artist.gettoptracks&artist=" + artist_name + "&api_key=f1bb284143153afdd97fe783fc354ef1&format=json"
+        Log.d(TAG, "fetchAlbums: here")
+        val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(
+            Method.GET, apiUrl, null,
+            Response.Listener { response ->
+                Log.d(TAG, "fetchTags: " + response)
+                try {
+                    val trackArray = response.getJSONObject("toptracks").getJSONArray("track");
+                    for (i in 0 until trackArray.length()) {
+                        val album = trackArray.getJSONObject(i)
+                        val tempAlbum = Album(
+                            album.getString("name"),
+                            album.getJSONArray("image").getJSONObject(3).getString("#text"),
+                            album.getJSONObject("artist").getString("name")
+                        )
+                        trackList.add(tempAlbum)
+                    }
+                    setTrackRecyclerView()
+                    progressDialog.dismiss()
+                } catch (e: JSONException) {
+                    Log.d(TAG, "fetchAlbumsJsErs: " + e)
+                    e.printStackTrace()
+                    progressDialog.dismiss()
+                }
+            },
+            Response.ErrorListener { error ->
+                Log.d(TAG, "fetchAlbumsEr: " + error)
+                progressDialog.dismiss()
+            }) {
+        }
+        val requestQueue = Volley.newRequestQueue(this)
+        requestQueue.add(jsonObjectRequest)
+    }
+
+    private fun setTrackRecyclerView() {
+        tracks_recycler_view.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        val adapter =
+            AlbumsAdapter(this, trackList) { position -> onListItemTrackClick(position) }
+        tracks_recycler_view.adapter = adapter
+    }
+
+    private fun onListItemTrackClick(position: Int) {
+        Log.d(TAG, "onListItemClick: ")
     }
 
     private fun fetchAlbums() {
@@ -185,11 +236,13 @@ class ArtistDetailActivity : AppCompatActivity() {
         artist_image = findViewById(R.id.artist_image)
         tagsRecyclerView = findViewById(R.id.tagsRecyclerView)
         albums_recycler_view = findViewById(R.id.albums_recycler_view)
+        tracks_recycler_view = findViewById(R.id.tracks_recycler_view);
 
         tagList = ArrayList()
         progressDialog = ProgressDialog(this, R.style.CustomProgressDialog)
         progressDialog.setCancelable(false)
         progressDialog.show()
         albumList = ArrayList()
+        trackList = ArrayList()
     }
 }
