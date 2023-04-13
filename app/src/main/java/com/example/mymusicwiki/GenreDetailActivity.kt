@@ -24,6 +24,8 @@ class GenreDetailActivity : AppCompatActivity() {
     lateinit var tag_description:TextView
     lateinit var tabLayout: TabLayout
     lateinit var viewPager2: ViewPager
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_genre_detail)
@@ -39,7 +41,7 @@ class GenreDetailActivity : AppCompatActivity() {
         tabLayout.addTab(tabLayout.newTab().setText("artists"))
         tabLayout.addTab(tabLayout.newTab().setText("tracks"))
 
-        val adapter=GenreDetailFragmentAdapter(this, supportFragmentManager,tabLayout.tabCount)
+        val adapter=GenreDetailFragmentAdapter(this, supportFragmentManager,tabLayout.tabCount,tag_name)
         viewPager2.adapter = adapter
 
         tabLayout.setupWithViewPager(viewPager2);

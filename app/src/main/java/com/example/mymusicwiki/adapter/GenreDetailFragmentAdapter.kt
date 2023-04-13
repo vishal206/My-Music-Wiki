@@ -14,13 +14,14 @@ import com.example.mymusicwiki.fragments.TracksFragment
 internal class GenreDetailFragmentAdapter(
     var context: Context,
     fm: FragmentManager,
-    var totalTabs: Int
+    var totalTabs: Int,
+    var tag_name:String
 ) :
     FragmentPagerAdapter(fm) {
     override fun getItem(position: Int): Fragment {
         return when (position) {
             0 -> {
-                AlbumsFragment()
+                AlbumsFragment(tag_name)
             }
             1 -> {
                 ArtistsFragment()
