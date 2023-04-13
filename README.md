@@ -3,6 +3,8 @@
 
 Hey there! I just created an awesome music app that allows you to explore different genres of music.MyMusicWiki is an unofficial Last.fm application that provides users with a comprehensive and in-depth understanding of various music genres. The app offers detailed information about albums, artists, and tracks associated with each genre, making it a valuable resource for music enthusiasts.
 
+<a href="https://drive.google.com/file/d/1tYJroCEWvC58GQChctcibCc37zk-pg61/view?usp=sharing" target="_blank">Download the APK</a>
+
 ## Technologies Used
 
 
